@@ -10,7 +10,6 @@ const MovieDetail = () => {
   const [movie, setMovie] = useState(null);
   const [actors, setActors] = useState([]);
   const [similarMovies, setSimilarMovies] = useState([]);
-  const [wishlist, setWishlist] = useState([]); 
 
   useEffect(() => {
     const fetchMovieDetails = async () => {
@@ -21,9 +20,8 @@ const MovieDetail = () => {
 
         const actorsResponse = await fetch(`${BASE_URL}/movie/${id}/credits?api_key=${API_KEY}&language=fr-FR`);
         const actorsData = await actorsResponse.json();
-        setActors(actorsData.cast.slice(0, 10));  // Limiter les acteurs à 10
+        setActors(actorsData.cast.slice(0, 10));
 
-        // Récupération des films similaires
         const similarMoviesResponse = await fetch(`${BASE_URL}/movie/${id}/similar?api_key=${API_KEY}&language=fr-FR&page=1`);
         const similarMoviesData = await similarMoviesResponse.json();
         setSimilarMovies(similarMoviesData.results);
@@ -37,8 +35,16 @@ const MovieDetail = () => {
 
   const addToWishlist = () => {
     if (movie) {
-      setWishlist((prevWishlist) => [...prevWishlist, movie]);
-      alert(`${movie.title} a été ajouté à votre wishlist !`);
+      const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+      const isAlreadyInWishlist = wishlist.some((item) => item.id === movie.id);
+
+      if (!isAlreadyInWishlist) {
+        wishlist.push(movie);
+        localStorage.setItem('wishlist', JSON.stringify(wishlist));
+        alert(`${movie.title} a été ajouté à votre wishlist !`);
+      } else {
+        alert(`${movie.title} est déjà dans votre wishlist.`);
+      }
     }
   };
 
@@ -55,16 +61,13 @@ const MovieDetail = () => {
       <div className="container mx-auto px-4">
         <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
           <div className="flex flex-col lg:flex-row">
-            {/* Partie Image avec alignement vertical centré */}
-            <div className="lg:w-1/3 p-6 flex items-center justify-center"> {/* Ajout de flex et items-center */}
+            <div className="lg:w-1/3 p-6 flex items-center justify-center">
               <img
                 src={movie.poster_path ? `${IMAGE_BASE_URL}${movie.poster_path}` : 'https://via.placeholder.com/200x300'}
                 alt={movie.title}
                 className="rounded-lg shadow-lg max-h-96 object-cover mx-auto"
               />
             </div>
-
-            {/* Partie Description */}
             <div className="lg:w-2/3 p-6">
               <h1 className="text-4xl font-semibold mb-4">{movie.title}</h1>
               <p className="text-lg text-gray-400 mb-4">{movie.overview}</p>
@@ -72,18 +75,17 @@ const MovieDetail = () => {
                 <p className="text-lg text-gray-300">Date de sortie : <span className="text-gray-100">{movie.release_date}</span></p>
                 <p className="text-lg text-gray-300">Note moyenne : <span className="text-yellow-400">{movie.vote_average.toFixed(1)} ({movie.vote_count} votes)</span></p>
               </div>
-
               <h3 className="text-2xl font-semibold mb-4">Genres :</h3>
               <div className="flex flex-wrap mb-4">
                 {movie.genres.map((genre) => (
                   <span key={genre.id} className="mr-2 mb-2 px-4 py-1 bg-blue-600 rounded-full text-sm text-white">{genre.name}</span>
                 ))}
               </div>
-
               {movie.runtime > 0 && (
                 <p className="text-lg text-gray-300 mb-4">Durée : <span className="text-gray-100">{formatRuntime(movie.runtime)}</span></p>
               )}
 
+              {/* Bouton Wishlist */}
               <button
                 onClick={addToWishlist}
                 className="mt-4 px-6 py-3 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition focus:outline-none"

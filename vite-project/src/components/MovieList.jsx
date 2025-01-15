@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from "react-router";
+//import { Styles } from "../Style/MouvieList.module.css";
 
 const API_KEY = import.meta.env.VITE_API_KEY;
 const BASE_URL = import.meta.env.VITE_BASE_API;
@@ -7,11 +8,10 @@ const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
 
 const MovieList = () => {
   const [movies, setMovies] = useState([]);
-  const [category, setCategory] = useState('popular'); // Catégorie par défaut
+  const [category, setCategory] = useState('popular');
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
 
-  // Fonction de récupération des films
   const fetchMovies = async (category) => {
     try {
       const response = await fetch(`${BASE_URL}/movie/${category}?api_key=${API_KEY}&language=fr-FR`);
@@ -22,7 +22,6 @@ const MovieList = () => {
     }
   };
 
-  // Fonction de recherche des films
   const searchMovies = async () => {
     if (debouncedSearchTerm.trim() === '') return;
 
@@ -35,17 +34,14 @@ const MovieList = () => {
     }
   };
 
-  // Effet pour déclencher la recherche après un délai (debounce)
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
     }, 300);
 
-    // Nettoyage du timer au changement de `searchTerm`
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Effet pour récupérer les films selon la catégorie ou la recherche
   useEffect(() => {
     if (debouncedSearchTerm) {
       searchMovies();
@@ -59,7 +55,6 @@ const MovieList = () => {
       <div className="container mx-auto px-4">
         <h1 className="text-4xl font-bold text-center mb-6">Liste des films</h1>
 
-        {/* Sélecteur de catégorie et champ de recherche */}
         <div className="flex flex-col md:flex-row justify-center items-center gap-4 mb-6">
           <div className="relative">
             <select
@@ -100,7 +95,7 @@ const MovieList = () => {
               <img
                 src={movie.poster_path ? `${IMAGE_BASE_URL}${movie.poster_path}` : 'https://via.placeholder.com/200x300'}
                 alt={movie.title}
-                className="w-full h-auto object-contain rounded-lg mb-4" // Modifié ici
+                className="w-full h-auto object-contain rounded-lg mb-4"
               />
               <h3 className="text-xl font-semibold text-white mb-2">{movie.title}</h3>
               <p className="text-gray-400">Note moyenne : {movie.vote_average.toFixed(1)} ({movie.vote_count} Votes)</p>
