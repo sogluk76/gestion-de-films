@@ -1,14 +1,13 @@
 import React from 'react'
-import "../Style/NavbarStyle"
 
 const Navbar = () => {
   return (
-    <nav class="navbar">
-        <a href="#" class="site-name">MonSite</a>
-        <div class="nav-links">
-            <a href="#liste-des-films">Liste des films</a>
-            <a href="#wishlist">Wishlist</a>
-            <a href="#recherche">Recherche</a>
+    <nav className="flex justify-between items-center bg-gray-800 p-4">
+        <a className="text-4xl text-white font-bold" href="#">MonSite</a>
+        <div className="flex space-x-4">
+            <a className="text-white hover:text-blue-400" href="liste-des-films">Liste des films</a>
+            <a className="text-white hover:text-blue-400" href="wishlist">Wishlist</a>
+            <a className="text-white hover:text-blue-400" href="#recherche">Recherche</a>
         </div>
     </nav>
   )
