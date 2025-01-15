@@ -3,7 +3,7 @@ import { Link } from "react-router";
 
 const API_KEY = import.meta.env.VITE_API_KEY;
 const BASE_URL = import.meta.env.VITE_BASE_API;
-const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w200';
+const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
 
 const MovieList = () => {
   const [movies, setMovies] = useState([]);
@@ -55,58 +55,64 @@ const MovieList = () => {
   }, [category, debouncedSearchTerm]);
 
   return (
-    <div className="text-center p-6 bg-gray-100 min-h-screen">
-      <h1 className="text-4xl font-bold text-gray-800 mb-6">Liste des films</h1>
+    <div className="bg-gray-900 text-white min-h-screen py-10">
+      <div className="container mx-auto px-4">
+        <h1 className="text-4xl font-bold text-center mb-6">Liste des films</h1>
 
-      <div className="flex flex-col md:flex-row justify-center items-center gap-4 mb-6">
-        <div>
-          <select
-            id="category"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="p-2 text-lg border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="now_playing">En salles (Now Playing)</option>
-            <option value="popular">Populaires</option>
-            <option value="top_rated">Les mieux notés (Top Rated)</option>
-            <option value="upcoming">À venir (Upcoming)</option>
-          </select>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <input
-            type="text"
-            placeholder="Rechercher un film..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="p-2 text-lg border rounded-md shadow-sm w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {movies.map((movie) => (
-          <div
-            key={movie.id}
-            className="border rounded-lg shadow-md p-4 bg-white hover:shadow-lg transition"
-          >
-            <img
-              src={movie.poster_path ? `${IMAGE_BASE_URL}${movie.poster_path}` : 'https://via.placeholder.com/200x300'}
-              alt={movie.title}
-              className="w-full h-auto max-h-64 object-contain rounded-lg mb-4"
-            />
-
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">{movie.title}</h3>
-            <p className="text-gray-600">Note moyenne : {movie.vote_average.toFixed(1)} ({movie.vote_count} Votes)</p>
-            <Link
-            rel="Voir les détails"
-            to={`/Detail/${movie.id}`}
-            className="block mt-10 mb-4 ml-4 mr-4 px-4 py-2 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-          Détails
-          </Link>
+        {/* Sélecteur de catégorie et champ de recherche */}
+        <div className="flex flex-col md:flex-row justify-center items-center gap-4 mb-6">
+          <div className="relative">
+            <select
+              id="category"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="p-3 pl-4 pr-10 text-lg bg-gray-800 text-white border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+            >
+              <option value="now_playing">En salles (Now Playing)</option>
+              <option value="popular">Populaires</option>
+              <option value="top_rated">Les mieux notés (Top Rated)</option>
+              <option value="upcoming">À venir (Upcoming)</option>
+            </select>
+            <span className="absolute top-0 right-0 mt-3 mr-4 text-white pointer-events-none">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="h-6 w-6">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </span>
           </div>
-        ))}
+
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              placeholder="Rechercher un film..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="p-3 text-lg bg-gray-800 text-white border rounded-md shadow-sm w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+          {movies.map((movie) => (
+            <div
+              key={movie.id}
+              className="bg-gray-800 rounded-lg p-4 shadow-md hover:shadow-lg transition-all"
+            >
+              <img
+                src={movie.poster_path ? `${IMAGE_BASE_URL}${movie.poster_path}` : 'https://via.placeholder.com/200x300'}
+                alt={movie.title}
+                className="w-full h-auto object-contain rounded-lg mb-4" // Modifié ici
+              />
+              <h3 className="text-xl font-semibold text-white mb-2">{movie.title}</h3>
+              <p className="text-gray-400">Note moyenne : {movie.vote_average.toFixed(1)} ({movie.vote_count} Votes)</p>
+              <Link
+                to={`/Detail/${movie.id}`}
+                className="block mt-4 mb-2 px-6 py-2 bg-blue-600 text-white rounded-md shadow hover:bg-blue-700 transition focus:outline-none"
+              >
+                Voir les détails
+              </Link>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
