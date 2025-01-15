@@ -8,7 +8,9 @@ const MovieList = () => {
   const [movies, setMovies] = useState([]);
   const [category, setCategory] = useState('popular'); // Catégorie par défaut
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
 
+  // Fonction de récupération des films
   const fetchMovies = async (category) => {
     try {
       const response = await fetch(`${BASE_URL}/movie/${category}?api_key=${API_KEY}&language=fr-FR`);
@@ -19,11 +21,12 @@ const MovieList = () => {
     }
   };
 
+  // Fonction de recherche des films
   const searchMovies = async () => {
-    if (searchTerm.trim() === '') return;
+    if (debouncedSearchTerm.trim() === '') return;
 
     try {
-      const response = await fetch(`${BASE_URL}/search/movie?api_key=${API_KEY}&language=fr-FR&query=${searchTerm}`);
+      const response = await fetch(`${BASE_URL}/search/movie?api_key=${API_KEY}&language=fr-FR&query=${debouncedSearchTerm}`);
       const data = await response.json();
       setMovies(data.results || []);
     } catch (error) {
@@ -31,17 +34,30 @@ const MovieList = () => {
     }
   };
 
+  // Effet pour déclencher la recherche après un délai (debounce)
   useEffect(() => {
-    fetchMovies(category);
-  }, [category]);
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 300);
+
+    // Nettoyage du timer au changement de `searchTerm`
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Effet pour récupérer les films selon la catégorie ou la recherche
+  useEffect(() => {
+    if (debouncedSearchTerm) {
+      searchMovies();
+    } else {
+      fetchMovies(category);
+    }
+  }, [category, debouncedSearchTerm]);
 
   return (
     <div className="text-center p-6 bg-gray-100 min-h-screen">
       <h1 className="text-4xl font-bold text-gray-800 mb-6">Liste des films</h1>
 
-      {/* Dropdown et barre de recherche */}
       <div className="flex flex-col md:flex-row justify-center items-center gap-4 mb-6">
-        {/* Dropdown pour sélectionner la catégorie */}
         <div>
           <select
             id="category"
@@ -56,7 +72,6 @@ const MovieList = () => {
           </select>
         </div>
 
-        {/* Barre de recherche */}
         <div className="flex items-center gap-2">
           <input
             type="text"
@@ -65,16 +80,9 @@ const MovieList = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="p-2 text-lg border rounded-md shadow-sm w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          <button
-            onClick={searchMovies}
-            className="p-2 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            Rechercher
-          </button>
         </div>
       </div>
 
-      {/* Liste des films */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {movies.map((movie) => (
           <div
@@ -82,9 +90,9 @@ const MovieList = () => {
             className="border rounded-lg shadow-md p-4 bg-white hover:shadow-lg transition"
           >
             <img
-            src={movie.poster_path ? `${IMAGE_BASE_URL}${movie.poster_path}` : 'https://via.placeholder.com/200x300'}
-            alt={movie.title}
-            className="w-full h-auto max-h-64 object-contain rounded-lg mb-4"
+              src={movie.poster_path ? `${IMAGE_BASE_URL}${movie.poster_path}` : 'https://via.placeholder.com/200x300'}
+              alt={movie.title}
+              className="w-full h-auto max-h-64 object-contain rounded-lg mb-4"
             />
 
             <h3 className="text-xl font-semibold text-gray-800 mb-2">{movie.title}</h3>
